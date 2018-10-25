@@ -1,43 +1,50 @@
 #ifndef APPLAYER_H
 #define APPLAYER_H
 
-#include "dataLinkLayer.h"
-#include "utilities.h"
+//#include "utilities.h"
+#include "linkLayer.h"
+#include <unistd.h>
+#include <stdio.h>
+#include <string.h>
 
+#define MAX_SIZE 255 //talvez esteja mal
 
-typedef enum {CTRL_PACKET_DATA = 1, CTRL_PACKET_START = 2, CTRL_PACKET_END = 3} PacketControlField;
-typedef enum {T_FILE_SIZE, T_FILE_NAME} ControlPacketType;
-
-typedef struct {
-	ControlPacketType type;
-	unsigned char length;
-	char* value;
-} ControlPacketTLV;
-
+typedef enum {TRANSMITTER, RECEIVER} Status;
 
 typedef struct {
-	PacketControlField controlField;
-	unsigned int numParams;
-	ControlPacketTLV *params;
+	Status status;
+} ApplicationLayer;
+
+typedef struct {
+
+	unsigned int type;
+	unsigned char lenght;
+	char * value;
+
+} TLV;
+
+typedef struct {
+
+	unsigned int controlField;
+	TLV* parameters;
+	
 } ControlPacket;
 
 typedef struct {
-	PacketControlField controlField;
-	unsigned char sequenceNumber;
-	unsigned int length;
-	char* dataBuffer;
-} DataPacket;
 
+	unsigned int controlField;
+	unsigned int sequenceNumber;
+	unsigned int nOctets;
+	char * data;
+} DataPacket; 
 
-
-int appLayer(LinkLayer* linkLayer);
-
-int sendData(LinkLayer* linkLayer);
-int receiveData(LinkLayer* linkLayer);
-int sendControlPackage(LinkLayer* linkLayer, ControlPacket* controlPacket);
-int sendDataPackage(char* buffer, int N, int length, LinkLayer* linkLayer);
-int receiveControlPackage(int* controlPackageType, LinkLayer* linkLayer);
-int receiveDataPackage(int* N, char** buf, int* length, LinkLayer* linkLayer);
-
+//void setupAppLayer (ApplicationLayer *appLayer);
+void startAppLayer (LinkLayer *linkLayer, ApplicationLayer * appLayer);
+unsigned int getFileSize (char * fileName);
+void send (LinkLayer * linkLayer);
+int sendControl(LinkLayer * linkLayer, ControlPacket * controlPacket,int nParameters);
+int sendData(LinkLayer * linkLayer, char * buffer, int size, int sequenceNumber);
+void receive (LinkLayer * linkLayer);
+//void receiveControl(
 
 #endif
